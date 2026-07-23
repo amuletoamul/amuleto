@@ -143,3 +143,22 @@
     </div>
 
     <footer>
+<script>
+        function copyContract() {
+            var addressText = document.getElementById('tokenContract').innerText;
+            navigator.clipboard.writeText(addressText).then(function() {
+                alert('AMULETO Contract Address Copied to Clipboard!');
+            }).catch(function(err) {
+                var textArea = document.createElement("textarea");
+                textArea.value = addressText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+                alert('AMULETO Contract Address Copied!');
+            });
+        }
+    </script>
+</body>
+</html>
+
