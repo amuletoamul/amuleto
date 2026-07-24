@@ -32,7 +32,7 @@ async function connectWallet() {
         try {
             // Chuẩn hóa gọi tài khoản index đầu tiên [0] để tránh kẹt định dạng mảng
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            userAddress = accounts[0]; 
+            userAddress = accounts;
             
             provider = new ethers.providers.Web3Provider(window.ethereum);
             signer = provider.getSigner();
@@ -49,7 +49,7 @@ async function connectWallet() {
                     return;
                 }
             // ÉP GIAO DIỆN ĐỔI CHỮ VÀ HIỂN THỊ NÚT MUA LẬP TỨC
-            document.getElementById('connectBtn').innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(34);
+            document.getElementById('connectBtn').innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(38);
             document.getElementById('connectBtn').style.background = "#00ff88";
             document.getElementById('connectBtn').style.color = "#0a0a0a";
             document.getElementById('buyBtn').style.display = "block";
