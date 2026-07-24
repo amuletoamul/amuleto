@@ -49,10 +49,12 @@ async function connectWallet() {
                 }
             }
 
-            document.getElementById('connectBtn').innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(34);
-            document.getElementById('connectBtn').style.background = "#00ff88";
-            document.getElementById('connectBtn').style.color = "#0a0a0a";
-            document.getElementById('buyBtn').style.display = "block";
+            // ĐÃ SỬA LẠI TỶ LỆ CẮT CHUỖI VÍ CHUẨN TRÁNH LỖI HỆ THỐNG
+document.getElementById('connectBtn').innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(38);
+document.getElementById('connectBtn').style.background = "#00ff88";
+document.getElementById('connectBtn').style.color = "#0a0a0a";
+document.getElementById('buyBtn').style.display = "block";
+
         } catch (error) {
             console.error(error);
             alert("Wallet connection canceled or failed.");
