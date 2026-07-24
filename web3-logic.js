@@ -20,23 +20,22 @@ function selectCurrency(currency) {
     } else {
         document.getElementById('bnbTierBtn').classList.remove('active');
         document.getElementById('usdtTierBtn').classList.add('active');
-        document.getElementById('inputLabel').innerText = "Amount in USDT (Min: 50 / Max: 3000)";
-        document.getElementById('cryptoInput').placeholder = "100";
-        document.getElementById('cryptoInput').step = "10";
+        // ĐÃ CẬP NHẬT HIỂN THỊ GIAO DIỆN XUỐNG MIN 1 USDT
+        document.getElementById('inputLabel').innerText = "Amount in USDT (Min: 1 / Max: 3000)";
+        document.getElementById('cryptoInput').placeholder = "10";
+        document.getElementById('cryptoInput').step = "1";
     }
 }
 
 async function connectWallet() {
     if (window.ethereum) {
         try {
-            // Yêu cầu kết nối tài khoản trực tiếp từ MetaMask
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             userAddress = accounts[0];
             
             provider = new ethers.providers.Web3Provider(window.ethereum);
             signer = provider.getSigner();
             
-            // Kiểm tra và bắt buộc chuyển sang mạng BNB Chain (ChainID 56 / 0x38)
             const chainId = await window.ethereum.request({ method: 'eth_chainId' });
             if (chainId !== '0x38' && chainId !== 56) {
                 try {
@@ -50,7 +49,6 @@ async function connectWallet() {
                 }
             }
 
-            // Cập nhật giao diện nút bấm hiển thị mã ví thành công
             document.getElementById('connectBtn').innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(34);
             document.getElementById('connectBtn').style.background = "#00ff88";
             document.getElementById('connectBtn').style.color = "#0a0a0a";
@@ -83,11 +81,12 @@ async function executePurchase() {
             });
             alert("Transaction submitted! Hash: " + tx.hash + "\nYour $AMUL tokens will be delivered within 24 hours after verification.");
         } catch (error) {
-            alert("Transaction failed or canceled.");
+            alert("Transaction failed.");
         }
     } else {
-        if(!amount || amount < 50 || amount > 3000) {
-            alert("Please enter a valid USDT amount between 50 and 3000 USDT.");
+        // ĐÃ ĐIỀU CHỈNH THUẬT TOÁN DUYỆT LỆNH MUA TỪ MỐC 1 USDT CHÍNH XÁC
+        if(!amount || amount < 1 || amount > 3000) {
+            alert("Please enter a valid USDT amount between 1 and 3000 USDT.");
             return;
         }
         try {
@@ -108,7 +107,6 @@ function copyContract() {
     navigator.clipboard.writeText(addressText).then(function() {
         alert('AMULETO Contract Address Copied!');
     }).catch(function(err) {
-        // Phương án dự phòng nếu API trình duyệt bị chặn
         var textArea = document.createElement("textarea");
         textArea.value = addressText;
         document.body.appendChild(textArea);
