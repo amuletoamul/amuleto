@@ -48,14 +48,13 @@ async function connectWallet() {
                     alert("Please change your Metamask network to BNB Smart Chain!");
                     return;
                 }
-            }
-
             // ÉP GIAO DIỆN ĐỔI CHỮ VÀ HIỂN THỊ NÚT MUA LẬP TỨC
             document.getElementById('connectBtn').innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(34);
             document.getElementById('connectBtn').style.background = "#00ff88";
             document.getElementById('connectBtn').style.color = "#0a0a0a";
             document.getElementById('buyBtn').style.display = "block";
-        } catch (error) {
+        } 
+catch (error) {
             console.error(error);
             alert("Wallet connection failed.");
         }
