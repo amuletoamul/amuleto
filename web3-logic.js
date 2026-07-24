@@ -20,7 +20,6 @@ function selectCurrency(currency) {
     } else {
         document.getElementById('bnbTierBtn').classList.remove('active');
         document.getElementById('usdtTierBtn').classList.add('active');
-        // ĐÃ CẬP NHẬT HIỂN THỊ GIAO DIỆN XUỐNG MIN 1 USDT
         document.getElementById('inputLabel').innerText = "Amount in USDT (Min: 1 / Max: 3000)";
         document.getElementById('cryptoInput').placeholder = "10";
         document.getElementById('cryptoInput').step = "1";
@@ -30,9 +29,9 @@ function selectCurrency(currency) {
 async function connectWallet() {
     if (window.ethereum) {
         try {
-            // Chuẩn hóa gọi tài khoản index đầu tiên [0] để tránh kẹt định dạng mảng
+            // Chuẩn hóa gọi tài khoản an toàn tuyệt đối tránh lỗi mảng
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            userAddress = accounts;
+            userAddress = accounts[0]; 
             
             provider = new ethers.providers.Web3Provider(window.ethereum);
             signer = provider.getSigner();
@@ -48,24 +47,16 @@ async function connectWallet() {
                     alert("Please change your Metamask network to BNB Smart Chain!");
                     return;
                 }
-            // ÉP GIAO DIỆN ĐỔI CHỮ VÀ HIỂN THỊ NÚT MUA LẬP TỨC
+            }
+
+            // Ép đổi màu giao diện và mở nút mua Activate Talisman lập tức
             document.getElementById('connectBtn').innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(38);
             document.getElementById('connectBtn').style.background = "#00ff88";
             document.getElementById('connectBtn').style.color = "#0a0a0a";
             document.getElementById('buyBtn').style.display = "block";
-        } 
-catch (error) {
-            console.error(error);
-            alert("Wallet connection failed.");
-        }
-    } else {
-        alert("MetaMask or Trust Wallet not found. Please install extension!");
-    }
-}
-
         } catch (error) {
             console.error(error);
-            alert("Wallet connection canceled or failed.");
+            alert("Wallet connection failed.");
         }
     } else {
         alert("MetaMask or Trust Wallet not found. Please install extension!");
@@ -91,10 +82,9 @@ async function executePurchase() {
             });
             alert("Transaction submitted! Hash: " + tx.hash + "\nYour $AMUL tokens will be delivered within 24 hours after verification.");
         } catch (error) {
-            alert("Transaction failed.");
+            alert("Transaction failed or canceled.");
         }
     } else {
-        // ĐÃ ĐIỀU CHỈNH THUẬT TOÁN DUYỆT LỆNH MUA TỪ MỐC 1 USDT CHÍNH XÁC
         if(!amount || amount < 1 || amount > 3000) {
             alert("Please enter a valid USDT amount between 1 and 3000 USDT.");
             return;
