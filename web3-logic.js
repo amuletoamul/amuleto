@@ -6,7 +6,7 @@ const usdtAbi = ["function transfer(address to, uint256 value) external returns 
 
 let provider;
 let signer;
-let userAddress;
+let userAddress = "";
 let selectedCurrency = 'BNB';
 
 function selectCurrency(currency) {
@@ -27,25 +27,37 @@ function selectCurrency(currency) {
 }
 
 async function connectWallet() {
-    if (typeof window.ethereum !== 'undefined') {
+    if (window.ethereum) {
         try {
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            await provider.send("eth_requestAccounts", []);
-            signer = provider.getSigner();
-            userAddress = await signer.getAddress();
+            // Yêu cầu kết nối tài khoản trực tiếp từ MetaMask
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            userAddress = accounts[0];
             
-            const network = await provider.getNetwork();
-            if(network.chainId !== 56) {
-                alert("Please switch your wallet network to BNB Smart Chain!");
-                return;
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            signer = provider.getSigner();
+            
+            // Kiểm tra và bắt buộc chuyển sang mạng BNB Chain (ChainID 56 / 0x38)
+            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+            if (chainId !== '0x38' && chainId !== 56) {
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x38' }],
+                    });
+                } catch (switchError) {
+                    alert("Please change your Metamask network to BNB Smart Chain!");
+                    return;
+                }
             }
 
-            document.getElementById('connectBtn').innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(38);
+            // Cập nhật giao diện nút bấm hiển thị mã ví thành công
+            document.getElementById('connectBtn').innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(34);
             document.getElementById('connectBtn').style.background = "#00ff88";
+            document.getElementById('connectBtn').style.color = "#0a0a0a";
             document.getElementById('buyBtn').style.display = "block";
         } catch (error) {
             console.error(error);
-            alert("Wallet connection failed.");
+            alert("Wallet connection canceled or failed.");
         }
     } else {
         alert("MetaMask or Trust Wallet not found. Please install extension!");
@@ -54,6 +66,10 @@ async function connectWallet() {
 
 async function executePurchase() {
     const amount = document.getElementById('cryptoInput').value;
+    if (!userAddress) {
+        alert("Please connect your wallet first!");
+        return;
+    }
     
     if(selectedCurrency === 'BNB') {
         if(!amount || amount < 0.01 || amount > 5) {
@@ -67,7 +83,7 @@ async function executePurchase() {
             });
             alert("Transaction submitted! Hash: " + tx.hash + "\nYour $AMUL tokens will be delivered within 24 hours after verification.");
         } catch (error) {
-            alert("Transaction failed.");
+            alert("Transaction failed or canceled.");
         }
     } else {
         if(!amount || amount < 50 || amount > 3000) {
@@ -82,7 +98,7 @@ async function executePurchase() {
             alert("USDT Transaction submitted! Hash: " + tx.hash + "\nYour $AMUL tokens will be delivered within 24 hours after verification.");
         } catch (error) {
             console.error(error);
-            alert("USDT Transaction failed. Make sure you have enough USDT and small BNB for gas.");
+            alert("USDT Transaction failed. Make sure you have small BNB for gas.");
         }
     }
 }
@@ -92,6 +108,13 @@ function copyContract() {
     navigator.clipboard.writeText(addressText).then(function() {
         alert('AMULETO Contract Address Copied!');
     }).catch(function(err) {
-        alert('Copy failed.');
+        // Phương án dự phòng nếu API trình duyệt bị chặn
+        var textArea = document.createElement("textarea");
+        textArea.value = addressText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        alert('AMULETO Contract Address Copied!');
     });
 }
